@@ -30,6 +30,8 @@ __pycache__/
 *.pyd
 *.pyd
 
+serviceAccountKey.json
+
 # Virtual environment
 venv/
 .env/
