@@ -11,6 +11,7 @@ if not MONGO_CONNECTION_STRING:
     logging.error("MongoDB connection string is not set. Check your .env file.")
     raise ValueError("MongoDB connection string is not set")
 
+
 try:
     client = AsyncIOMotorClient(MONGO_CONNECTION_STRING)
     db = client["flight_status"]

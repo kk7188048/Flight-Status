@@ -1,15 +1,18 @@
-from fastapi import FastAPI
-from app.routes import router
-import uvicorn
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-
-
+from app.routes import router
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import JSONResponse
+from app.database import db
 app = FastAPI()
 
-# Allow all origins for simplicity
+
+
+
+# Set up CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"],  # Change to your frontend's origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -17,7 +20,7 @@ app.add_middleware(
 
 app.include_router(router)
 
-
 if __name__ == "__main__":
-    
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
