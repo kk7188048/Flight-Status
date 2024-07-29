@@ -5,7 +5,10 @@ from app.firebase import get_firebase_app
 from app.email import send_email
 from app.sms import send_sms
 
+
+
 firebase_app = get_firebase_app()
+
 
 async def send_notification(flight_status):
     # Firebase notification
@@ -24,6 +27,9 @@ async def send_notification(flight_status):
         print("Successfully sent Firebase message:", response)
     except Exception as e:
         print("Failed to send Firebase notification:", e)
+
+    # Push notification 
+      
 
     # Email notification
     subject = f"Flight {flight_status.flight_id} Status Update"

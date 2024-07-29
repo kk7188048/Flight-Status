@@ -5,7 +5,10 @@ from pydantic import BaseModel
 from datetime import timedelta
 from typing import List
 from app.database import db
+from app.firebase import get_firebase_app
 from app.notification import send_notification
+from app.firebase import messaging
+
 from app.auth import (
     verify_password, get_password_hash, create_access_token,
     SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
@@ -46,6 +49,9 @@ async def websocket_endpoint(websocket: WebSocket):
             await manager.broadcast(data)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+
+
 
 
 @router.post("/register/")
@@ -105,6 +111,14 @@ async def add_flight_status(flight_status: FlightStatus, current_user: User = De
 
         updated_flight = await db["flights"].find_one({"flight_id": flight_status.flight_id})
         await send_notification(flight_status)
+        message = messaging.Message(
+                notification=messaging.Notification(
+                    title=f"Flight {updated_flight['flight_id']} status updated",
+                    body=f"Status: {updated_flight['status']}, Gate: {updated_flight['gate']}, Delay: {updated_flight['delay']} minutes"
+                ),
+                topic="flight-updates",
+            )
+        messaging.send(message)
 
         if updated_flight:
             updated_flight["_id"] = str(updated_flight["_id"]) 
@@ -117,23 +131,6 @@ async def add_flight_status(flight_status: FlightStatus, current_user: User = De
     except Exception as e:
         logging.error(f"Error adding flight status: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-# async def add_flight_status(flight_status: FlightStatus, current_user: User = Depends(get_current_user)):
-#     try:
-        
-#         flight = await db["flights"].find_one({"flight_id": flight_status.flight_id})
-#         if flight:
-#             await db["flights"].update_one({"flight_id": flight_status.flight_id}, {"$set": flight_status.dict()})
-#         else:
-#             await db["flights"].insert_one(flight_status.dict())
-        
-#         await send_notification(flight_status)
-#         await manager.broadcast(f"Flight {updated_flight['flight_id']} status updated")
-        
-#         logging.info(f"Flight status updated: {flight_status}")
-#         return {"message": "Flight status updated successfully"}
-#     except Exception as e:
-#         logging.error(f"Error updating flight status: {e}")
-#         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 from bson import ObjectId

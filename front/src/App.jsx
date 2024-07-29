@@ -12,8 +12,10 @@ import Footer from './components/Footer';
 axios.defaults.withCredentials = true;
 
 function App() {
+
   return (
     <div className="bg-gray-100 min-h-screen">
+      
       <Navbar />
       <div className="p-4">
         <Routes>

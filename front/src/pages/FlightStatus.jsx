@@ -1,17 +1,34 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import api from '../api';
+import { requestForToken, onMessageListener } from '../utils/firebaseUtils'
+
 
 function FlightStatus() {
-  const [flightId, setFlightId] = useState('')
+  const [flightId, setFlightId] = useState('') // Used for Add/Update
+  const [checkFlightId, setCheckFlightId] = useState('') // Used for Get Status
   const [status, setStatus] = useState('')
   const [gate, setGate] = useState('')
   const [delay, setDelay] = useState('')
   const [flightInfo, setFlightInfo] = useState(null)
   const [error, setError] = useState('')
   const [realTimeUpdate, setRealTimeUpdate] = useState('')
+  const [notification, setNotification] = useState(null)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+
+  
+
+
+  useEffect(() => {
+    requestForToken()
+    onMessageListener()
+      .then(payload => {
+        setNotification(payload)
+      })
+      .catch(err => console.log('failed: ', err))
+  }, [])
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -19,6 +36,7 @@ function FlightStatus() {
       navigate('/login')
     }
   }, [navigate])
+
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:8000/ws')
@@ -47,7 +65,7 @@ function FlightStatus() {
   }, [])
 
   const handleGetFlightStatus = async () => {
-    if (!flightId) {
+    if (!checkFlightId) {
       setError('Please enter a Flight ID.')
       return
     }
@@ -55,7 +73,7 @@ function FlightStatus() {
     setLoading(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await axios.get(`http://localhost:8000/status/${flightId}`, {
+      const response = await api.get(`/status/${checkFlightId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       setFlightInfo(response.data)
@@ -81,8 +99,8 @@ function FlightStatus() {
       if (!token) {
         throw new Error('No token found')
       }
-      const response = await axios.post(
-        'http://localhost:8000/status/',
+      const response = await api.post(
+        '/status/',
         { flight_id: flightId, status, gate, delay },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       )
@@ -100,7 +118,7 @@ function FlightStatus() {
     <div className="container mx-auto p-4 max-w-3xl">
       <h1 className="text-3xl font-extrabold text-gray-800 mb-6">Flight Status</h1>
       {realTimeUpdate && <p className="text-blue-500 text-lg mb-4">{realTimeUpdate}</p>}
-      
+
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-2xl font-semibold mb-4">Add/Update Flight Status</h2>
         <form onSubmit={handleAddOrUpdateFlightStatus}>
@@ -145,6 +163,7 @@ function FlightStatus() {
             </div>
             <button
               type="submit"
+              
               className="w-full py-3 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               disabled={loading}
             >
@@ -153,15 +172,15 @@ function FlightStatus() {
           </div>
         </form>
       </div>
-      
+
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-4">Check Flight Status</h2>
         <div className="flex items-center space-x-4 mb-4">
           <input
             type="text"
             placeholder="Enter Flight ID"
-            value={flightId}
-            onChange={(e) => setFlightId(e.target.value)}
+            value={checkFlightId}
+            onChange={(e) => setCheckFlightId(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           />
           <button
@@ -182,6 +201,19 @@ function FlightStatus() {
             <p><strong>Delay:</strong> {flightInfo.delay} minutes</p>
           </div>
         )}
+        {realTimeUpdate && (
+        <div className="p-4 border border-gray-300 rounded mt-4">
+          <h2 className="text-xl font-bold mb-2">Real-time Update</h2>
+          <p>{realTimeUpdate}</p>
+        </div>
+      )}
+      {notification && (
+        <div className="p-4 border border-gray-300 rounded mt-4">
+          <h2 className="text-xl font-bold mb-2">Notification</h2>
+          <p>{notification.notification.title}</p>
+          <p>{notification.notification.body}</p>
+        </div>
+      )}
       </div>
     </div>
   )
