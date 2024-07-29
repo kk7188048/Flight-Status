@@ -34,17 +34,14 @@ This project is a full-stack application designed to provide real-time flight st
 1. **Clone the repository:**
 
    ```bash
-   git clone <your-repository-url>
-   cd <your-repository-name>/backend
+   git clone https://github.com/kk7188048/Flight-Status.git
+   cd Flight-Status/back
 
 2. **Create and activate a virtual environment:**
 
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-  
-   
-   
    
 3   **Install the dependencies:**
 
@@ -54,3 +51,19 @@ This project is a full-stack application designed to provide real-time flight st
 4    **Start the FastAPI server:**
    ```bash
    uvicorn main:app --reload
+
+
+### Frontend
+**Navigate to the frontend directory:**
+```bash
+cd ../front
+
+**Install the dependencies:**
+
+```bash
+npm install
+
+**Start the Vite development server:**
+
+```bash
+npm run dev
