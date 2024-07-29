@@ -1,5 +1,7 @@
 # Flight Status and Notifications System
 
+## In case you are failing to install or any issue, Add the issue i will address it
+
 This project is a full-stack application designed to provide real-time flight status updates and notifications to passengers. It features a backend developed using FastAPI, MongoDB, and Firebase for notifications, and a frontend built with Vite, React.js, React Router, and Tailwind CSS.
 
 ## Features
