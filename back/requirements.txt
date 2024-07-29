@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pymongo
+dnspython
+python-dotenv
+passlib[bcrypt]
+pyjwt
+smtplib
+email-validator
+firebase-admin
+websockets
